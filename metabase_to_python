@@ -1,0 +1,24 @@
+import requests
+import pandas as pd
+import io
+res = requests.post('http://metabase.breathewellbeing.in:3000/api/session', 
+                    headers = {"Content-Type": "application/json"},
+                    json =  {"username": "", 
+                             "password": ""}
+                   )
+assert res.ok == True
+print(res.json())
+token = res.json()['id']
+
+
+def request_data(questionnumber):
+
+    res = requests.post('http://metabase.breathewellbeing.in:3000/api/card/'+questionnumber+'/query/csv',
+              headers = {'Content-Type': 'application/json',
+                        'X-Metabase-Session': token
+                        }
+            )
+    assert res.ok == True
+    data=pd.read_csv(io.StringIO(res.content.decode('utf-8')),low_memory=False)
+    return data
+leads_data=request_data('797')
